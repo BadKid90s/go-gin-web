@@ -19,7 +19,7 @@ func NewUserHandler() UserHandler {
 type userHandler struct {
 }
 
-func (h *userHandler) Register(ctx *gin.Context) {
+func (h *userHandler) Register(_ *gin.Context) {
 	//TODO implement me
 	panic("implement me")
 }
