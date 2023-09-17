@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"go-gin-demo/cmd/wire"
+	"go-gin-demo/cmd/server/wire"
 	"go-gin-demo/pkg/config"
 	"go-gin-demo/pkg/http"
 	"go-gin-demo/pkg/log"
