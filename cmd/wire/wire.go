@@ -5,9 +5,11 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"go-gin-demo/internal/common"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
 	"go-gin-demo/internal/system/handler"
+	"go-gin-demo/pkg/log"
 	"net/http"
 )
 
@@ -19,15 +21,20 @@ var RouterSet = wire.NewSet(
 	routers.NewRouter,
 )
 
-var HandlerSet = wire.NewSet(
+var CommSet = wire.NewSet(
+	common.NewHandler,
+)
+
+var SystemHandlerSet = wire.NewSet(
 	handler.NewUserHandler,
 	handler.NewSystemHandler,
 )
 
-func NewServer(_ *viper.Viper) http.Handler {
+func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	wire.Build(
 		ServerSet,
-		HandlerSet,
+		CommSet,
+		SystemHandlerSet,
 		RouterSet,
 	)
 	return nil

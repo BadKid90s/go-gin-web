@@ -9,17 +9,20 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"go-gin-demo/internal/common"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
 	"go-gin-demo/internal/system/handler"
+	"go-gin-demo/pkg/log"
 	"net/http"
 )
 
 // Injectors from wire.go:
 
-func NewServer(viperViper *viper.Viper) http.Handler {
+func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	engine := server.NewServer()
-	userHandler := handler.NewUserHandler()
+	commonHandler := common.NewHandler(logger)
+	userHandler := handler.NewUserHandler(commonHandler)
 	systemHandler := handler.NewSystemHandler(userHandler)
 	httpHandler := routers.NewRouter(engine, systemHandler)
 	return httpHandler
@@ -31,4 +34,6 @@ var ServerSet = wire.NewSet(server.NewServer)
 
 var RouterSet = wire.NewSet(routers.NewRouter)
 
-var HandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewSystemHandler)
+var CommSet = wire.NewSet(common.NewHandler)
+
+var SystemHandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewSystemHandler)
