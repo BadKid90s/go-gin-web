@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-gin-demo/internal/common"
+	"go-gin-demo/internal/system/request"
+	"go-gin-demo/internal/system/service"
 	"net/http"
 )
 
@@ -13,19 +15,29 @@ type UserHandler interface {
 	UserInfo(ctx *gin.Context)
 }
 
-func NewUserHandler(handler *common.Handler) UserHandler {
+func NewUserHandler(handler *common.Handler, userService service.UserService) UserHandler {
 	return &userHandler{
-		Handler: handler,
+		Handler:     handler,
+		userService: userService,
 	}
 }
 
 type userHandler struct {
 	*common.Handler
+	userService service.UserService
 }
 
-func (h *userHandler) Register(_ *gin.Context) {
-	//TODO implement me
-	panic("implement me")
+func (h *userHandler) Register(ctx *gin.Context) {
+	req := new(request.RegisterRequest)
+	if err := ctx.ShouldBindJSON(req); err != nil {
+		common.HandleError(ctx, http.StatusBadRequest, err, nil)
+		return
+	}
+	if err := h.userService.Register(ctx, req); err != nil {
+		common.HandleError(ctx, http.StatusBadRequest, err, nil)
+		return
+	}
+	common.HandleSuccess(ctx, nil)
 }
 
 func (h *userHandler) UserInfo(ctx *gin.Context) {

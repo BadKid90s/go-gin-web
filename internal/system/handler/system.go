@@ -4,6 +4,6 @@ type SystemHandler struct {
 	User UserHandler
 }
 
-func NewSystemHandler(user UserHandler) *SystemHandler {
-	return &SystemHandler{User: user}
+func NewSystemHandler(user UserHandler) SystemHandler {
+	return SystemHandler{User: user}
 }

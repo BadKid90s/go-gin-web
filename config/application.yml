@@ -1,6 +1,10 @@
 server:
   port: 8080
 
+data:
+  mysql:
+    user: root:123456@tcp(127.0.0.1:3306)/go_gin_web?charset=utf8mb4&parseTime=True&loc=Local
+
 log:
   log_level: debug
   encoding: console           # json or console

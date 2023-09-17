@@ -8,7 +8,7 @@ import (
 
 func NewRouter(
 	r *gin.Engine,
-	systemHandler *handler.SystemHandler,
+	systemHandler handler.SystemHandler,
 ) http.Handler {
 
 	api := r.RouterGroup

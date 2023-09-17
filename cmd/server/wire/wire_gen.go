@@ -13,6 +13,8 @@ import (
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
 	"go-gin-demo/internal/system/handler"
+	"go-gin-demo/internal/system/repository"
+	"go-gin-demo/internal/system/service"
 	"go-gin-demo/pkg/log"
 	"net/http"
 )
@@ -22,7 +24,11 @@ import (
 func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	engine := server.NewServer()
 	commonHandler := common.NewHandler(logger)
-	userHandler := handler.NewUserHandler(commonHandler)
+	db := common.NewDB(viperViper)
+	commonRepository := common.NewRepository(db, logger)
+	userRepository := repository.NewUserRepository(commonRepository)
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(commonHandler, userService)
 	systemHandler := handler.NewSystemHandler(userHandler)
 	httpHandler := routers.NewRouter(engine, systemHandler)
 	return httpHandler
@@ -34,6 +40,6 @@ var ServerSet = wire.NewSet(server.NewServer)
 
 var CommSet = wire.NewSet(common.NewHandler, common.NewDB, common.NewRepository)
 
-var SystemHandlerSet = wire.NewSet(handler.NewUserHandler, handler.NewSystemHandler)
+var SystemSet = wire.NewSet(repository.NewUserRepository, service.NewUserService, handler.NewUserHandler, handler.NewSystemHandler)
 
 var RouterSet = wire.NewSet(routers.NewRouter)
