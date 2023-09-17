@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-gin-demo/internal/common"
 	"net/http"
 )
 
@@ -12,11 +13,14 @@ type UserHandler interface {
 	UserInfo(ctx *gin.Context)
 }
 
-func NewUserHandler() UserHandler {
-	return &userHandler{}
+func NewUserHandler(handler *common.Handler) UserHandler {
+	return &userHandler{
+		Handler: handler,
+	}
 }
 
 type userHandler struct {
+	*common.Handler
 }
 
 func (h *userHandler) Register(_ *gin.Context) {
