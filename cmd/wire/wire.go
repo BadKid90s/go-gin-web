@@ -17,17 +17,19 @@ var ServerSet = wire.NewSet(
 	server.NewServer,
 )
 
-var RouterSet = wire.NewSet(
-	routers.NewRouter,
-)
-
 var CommSet = wire.NewSet(
 	common.NewHandler,
+	common.NewDB,
+	common.NewRepository,
 )
 
 var SystemHandlerSet = wire.NewSet(
 	handler.NewUserHandler,
 	handler.NewSystemHandler,
+)
+
+var RouterSet = wire.NewSet(
+	routers.NewRouter,
 )
 
 func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
