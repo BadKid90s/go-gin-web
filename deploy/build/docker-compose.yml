@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  go-gin-web:
+    image: go-gin-web:latest
+    build:
+      context: ../../
+      dockerfile: ./deploy/build/Dockerfile

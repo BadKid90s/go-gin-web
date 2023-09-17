@@ -4,7 +4,7 @@ appName := go-gin-web
 endif
 # 检查是否提供了 version 参数，如果没有则使用默认值 1.0.0
 ifeq ($(version),)
-version := 1.0.0
+version := latest
 endif
 
 
@@ -12,13 +12,32 @@ endif
 init:
 	go mod tidy
 
+# 本地打包
 .PHONY: build
 build:
 	go build -ldflags="-s -w" -o ./bin/server ./cmd/server
 
-.PHONY: docker
-docker:
+# docker 打包镜像
+.PHONY: docker-build
+docker-build:
 	docker build -f deploy/build/Dockerfile -t $(appName):$(version) .
+
+# docker-compose 打包镜像
+.PHONY: docker-compose-build
+docker-compose-build:
+	docker-compose -f deploy/build/docker-compose.yml build
+
+# docker-compose 运行
+.PHONY: docker-compose-up
+docker-compose-up:
+	docker-compose -f deploy/docker-compose/docker-compose.yml  -p go-gin-web up -d
+
+# docker-compose 运行
+.PHONY: docker-compose-down
+docker-compose-down:
+	docker-compose -f deploy/docker-compose/docker-compose.yml down
+
+
 
 #.PHONY: bootstrap
 #bootstrap:
