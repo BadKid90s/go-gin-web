@@ -35,7 +35,7 @@ docker-compose-up:
 # docker-compose 运行
 .PHONY: docker-compose-down
 docker-compose-down:
-	docker-compose -f deploy/docker-compose/docker-compose.yml down
+	docker-compose -f deploy/docker-compose/docker-compose.yml -p go-gin-web down
 
 
 
