@@ -1,13 +1,6 @@
 version: '3'
 
 services:
-  web:
-    image: go-gin-web:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./conf/web/config:/data/app/conf
-      - ./data/web/logs:/data/app/logs
   mysql:
     image: mysql:latest
     ports:
@@ -17,6 +10,15 @@ services:
       - MYSQL_ROOT_HOST=%
       - MYSQL_DATABASE=root
     volumes:
-      - ./data/mysql/user:/var/lib/mysql
-      - ./conf/mysql/conf.d:/etc/mysql/conf.d
+      - ./data/mysql:/var/lib/mysql
+#      - ./conf/mysql/conf.d:/etc/mysql/conf.d
       - ./scripts:/docker-entrypoint-initdb.d
+  web:
+    image: go-gin-web:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./conf/web/config:/data/app/config
+      - ./data/web/logs:/data/app/logs
+    depends_on:
+      - mysql
