@@ -1,5 +1,7 @@
 package common
 
+import "errors"
+
 // common errors
 
 var (
@@ -10,9 +12,24 @@ var (
 	ErrInternalServerError = newError(500, "Internal Server Error")
 )
 
-// more biz errors
+type Error struct {
+	Code    int
+	Message string
+}
 
-var (
-	//
-	ErrUsernameAlreadyUsed = newError(1001, "The username is already in used.")
-)
+var errorCodeMap = map[error]int{}
+
+func NewInternalError(msg string) error {
+	err := errors.New(msg)
+	errorCodeMap[err] = 500
+	return err
+}
+
+func newError(code int, msg string) error {
+	err := errors.New(msg)
+	errorCodeMap[err] = code
+	return err
+}
+func (e Error) Error() string {
+	return e.Message
+}

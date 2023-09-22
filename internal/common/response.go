@@ -1,7 +1,6 @@
 package common
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -26,20 +25,4 @@ func HandleError(ctx *gin.Context, httpCode int, err error, data interface{}) {
 	}
 	resp := Response{Code: errorCodeMap[err], Message: err.Error(), Data: data}
 	ctx.JSON(httpCode, resp)
-}
-
-type Error struct {
-	Code    int
-	Message string
-}
-
-var errorCodeMap = map[error]int{}
-
-func newError(code int, msg string) error {
-	err := errors.New(msg)
-	errorCodeMap[err] = code
-	return err
-}
-func (e Error) Error() string {
-	return e.Message
 }
