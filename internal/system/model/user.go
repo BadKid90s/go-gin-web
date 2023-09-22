@@ -1,21 +1,18 @@
 package model
 
-import (
-	"database/sql"
-	"time"
-)
+import "time"
 
 type User struct {
-	Id        uint   `gorm:"primaryKey;autoIncrement"`
-	UserName  string `gorm:"not null"`
-	Password  string `gorm:"not null"`
-	Mobile    string `gorm:"not null"`
-	Email     string `gorm:"null"`
-	TenantId  string `gorm:"not null"`
-	Status    int    `gorm:"not null"`
-	Birthday  sql.NullTime
+	Id        uint
 	CreatedAt time.Time
 	UpdatedAt time.Time
+
+	LoginName *string
+	Password  *string
+	UserName  *string
+	Mobile    *string
+	Email     *string
+	Enabled   bool
 }
 
 func (u *User) TableName() string {

@@ -11,6 +11,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) error
 	GetByUsername(ctx context.Context, username string) (*model.User, error)
+	GetByLoginName(ctx context.Context, loginName string) (*model.User, error)
 }
 
 func NewUserRepository(r *common.Repository) UserRepository {
@@ -21,6 +22,17 @@ func NewUserRepository(r *common.Repository) UserRepository {
 
 type userRepository struct {
 	*common.Repository
+}
+
+func (r *userRepository) GetByLoginName(_ context.Context, loginName string) (*model.User, error) {
+	var user model.User
+	if err := r.DB.Where("login_name = ? ", loginName).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, errors.Wrap(err, "failed to get user by loginName")
+	}
+	return &user, nil
 }
 
 func (r *userRepository) Create(_ context.Context, user *model.User) error {
