@@ -28,7 +28,7 @@ type userService struct {
 func (s *userService) Register(ctx context.Context, req *request.RegisterRequest) error {
 	// check username
 	if user, err := s.userRepo.GetByUsername(ctx, *req.Username); err == nil && user != nil {
-		return common.NewInternalError("username already exists")
+		return common.NewBizError("username already exists")
 	}
 
 	password, err := pkg.HashPassword(*req.Password)
@@ -51,11 +51,11 @@ func (s *userService) Register(ctx context.Context, req *request.RegisterRequest
 func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (string, error) {
 	user, err := s.userRepo.GetByLoginName(ctx, req.LoginName)
 	if err != nil || user == nil {
-		return "", common.NewInternalError("failed to get user by loginName")
+		return "", common.NewBizError("failed to get user by loginName")
 	}
 
 	if !pkg.CheckPassword(req.Password, *user.Password) {
-		return "", common.NewInternalError("password verify failed")
+		return "", common.NewBizError("password verify failed")
 	}
 
 	//token, err := s.jwt.GenToken(user.Id, time.Now().Add(time.Hour*24*90))

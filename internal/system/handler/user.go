@@ -30,11 +30,11 @@ type userHandler struct {
 func (h *userHandler) Register(ctx *gin.Context) {
 	req := new(request.RegisterRequest)
 	if err := ctx.ShouldBindJSON(req); err != nil {
-		common.HandleError(ctx, http.StatusBadRequest, err, nil)
+		common.HandleError(ctx, err, nil)
 		return
 	}
 	if err := h.userService.Register(ctx, req); err != nil {
-		common.HandleError(ctx, http.StatusBadRequest, err, nil)
+		common.HandleError(ctx, err, nil)
 		return
 	}
 	common.HandleSuccess(ctx, nil)
