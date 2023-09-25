@@ -27,7 +27,7 @@ type userService struct {
 
 func (s *userService) Register(ctx context.Context, req *request.RegisterRequest) error {
 	// check username
-	if user, err := s.userRepo.GetByUsername(ctx, *req.Username); err == nil && user != nil {
+	if user, err := s.userRepo.GetByUsername(ctx, *req.UserName); err == nil && user != nil {
 		return common.NewBizError("username already exists")
 	}
 
@@ -38,9 +38,10 @@ func (s *userService) Register(ctx context.Context, req *request.RegisterRequest
 
 	// Create a user
 	user := &model.User{
-		UserName:  req.Username,
+		UserName:  req.UserName,
 		LoginName: req.LoginName,
 		Password:  &password,
+		Enabled:   true,
 	}
 	if err := s.userRepo.Create(ctx, user); err != nil {
 		return errors.Wrap(err, "failed to create user")

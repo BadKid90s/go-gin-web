@@ -48,19 +48,14 @@ func (h *userHandler) UserInfo(ctx *gin.Context) {
 }
 
 func (h *userHandler) Login(ctx *gin.Context) {
-	// Binding from JSON
-	type Login struct {
-		User     string `form:"user" json:"user" binding:"required"`
-		Password string `form:"password" json:"password" binding:"required"`
+	loginReq := new(request.LoginRequest)
+	if err := ctx.ShouldBind(&loginReq); err == nil {
+		fmt.Printf("login info:%#v", loginReq)
 	}
-	var login Login
-	if err := ctx.ShouldBind(&login); err == nil {
-		fmt.Printf("login info:%#v\n", login)
-		ctx.JSON(http.StatusOK, gin.H{
-			"user":     login.User,
-			"password": login.Password,
-		})
-	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	jwt, err := h.userService.Login(ctx, loginReq)
+	if err != nil {
+		common.HandleError(ctx, err, nil)
+		return
 	}
+	common.HandleSuccess(ctx, jwt)
 }

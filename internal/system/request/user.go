@@ -1,7 +1,7 @@
 package request
 
 type RegisterRequest struct {
-	Username  *string `json:"username"`
+	UserName  *string `json:"userName"`
 	LoginName *string `json:"loginName"`
 	Password  *string `json:"password"`
 }
