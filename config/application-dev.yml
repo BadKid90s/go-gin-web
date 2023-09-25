@@ -13,3 +13,8 @@ log:
   max_age: 7
   max_size: 1024
   compress: true
+
+security:
+  jwt:
+    key: wry
+    expires: 3600

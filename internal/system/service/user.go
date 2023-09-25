@@ -8,6 +8,7 @@ import (
 	"go-gin-demo/internal/system/pkg"
 	"go-gin-demo/internal/system/repository"
 	"go-gin-demo/internal/system/request"
+	"go-gin-demo/pkg/jwt"
 )
 
 type UserService interface {
@@ -15,13 +16,15 @@ type UserService interface {
 	Login(ctx context.Context, req *request.LoginRequest) (string, error)
 }
 
-func NewUserService(userRepo repository.UserRepository) UserService {
+func NewUserService(jwt *jwt.JWT, userRepo repository.UserRepository) UserService {
 	return &userService{
+		jwt:      jwt,
 		userRepo: userRepo,
 	}
 }
 
 type userService struct {
+	jwt      *jwt.JWT
 	userRepo repository.UserRepository
 }
 
@@ -59,11 +62,9 @@ func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (str
 		return "", common.NewBizError("password verify failed")
 	}
 
-	//token, err := s.jwt.GenToken(user.Id, time.Now().Add(time.Hour*24*90))
-	//if err != nil {
-	//	return "", errors.Wrap(err, "failed to generate JWT token")
-	//}
-	//
-	//return token, nil
-	return "token", nil
+	token, err := s.jwt.GenToken(user.Id)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to generate JWT token")
+	}
+	return token, nil
 }

@@ -15,6 +15,7 @@ import (
 	"go-gin-demo/internal/system/handler"
 	"go-gin-demo/internal/system/repository"
 	"go-gin-demo/internal/system/service"
+	"go-gin-demo/pkg/jwt"
 	"go-gin-demo/pkg/log"
 	"net/http"
 )
@@ -24,10 +25,11 @@ import (
 func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	engine := server.NewServer()
 	commonHandler := common.NewHandler(logger)
+	jwtJWT := jwt.NewJwt(viperViper)
 	db := common.NewDB(viperViper)
 	commonRepository := common.NewRepository(db, logger)
 	userRepository := repository.NewUserRepository(commonRepository)
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(jwtJWT, userRepository)
 	userHandler := handler.NewUserHandler(commonHandler, userService)
 	systemHandler := handler.NewSystemHandler(userHandler)
 	httpHandler := routers.NewRouter(engine, systemHandler)
@@ -37,6 +39,8 @@ func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 // wire.go:
 
 var ServerSet = wire.NewSet(server.NewServer)
+
+var JwtSet = wire.NewSet(jwt.NewJwt)
 
 var CommSet = wire.NewSet(common.NewHandler, common.NewDB, common.NewRepository)
 
