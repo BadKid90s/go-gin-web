@@ -27,8 +27,8 @@ type userService struct {
 
 func (s *userService) Register(ctx context.Context, req *request.RegisterRequest) error {
 	// check username
-	if user, err := s.userRepo.GetByUsername(ctx, *req.UserName); err == nil && user != nil {
-		return common.NewBizError("username already exists")
+	if user, err := s.userRepo.GetByLoginName(ctx, *req.LoginName); err == nil && user != nil {
+		return common.NewBizError("LoginName already exists")
 	}
 
 	password, err := pkg.HashPassword(*req.Password)
