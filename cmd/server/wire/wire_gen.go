@@ -23,16 +23,16 @@ import (
 // Injectors from wire.go:
 
 func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
+	jwtJWT := jwt.NewJwt(viperViper)
 	engine := server.NewServer()
 	commonHandler := common.NewHandler(logger)
-	jwtJWT := jwt.NewJwt(viperViper)
 	db := common.NewDB(viperViper)
 	commonRepository := common.NewRepository(db, logger)
 	userRepository := repository.NewUserRepository(commonRepository)
 	userService := service.NewUserService(jwtJWT, userRepository)
 	userHandler := handler.NewUserHandler(commonHandler, userService)
 	systemHandler := handler.NewSystemHandler(userHandler)
-	httpHandler := routers.NewRouter(engine, systemHandler)
+	httpHandler := routers.NewRouter(jwtJWT, engine, systemHandler)
 	return httpHandler
 }
 

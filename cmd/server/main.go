@@ -15,5 +15,8 @@ func main() {
 
 	handler := wire.NewServer(conf, logger)
 
-	http.Run(handler, fmt.Sprintf(":%d", conf.GetInt("server.port")))
+	err := http.Run(handler, fmt.Sprintf(":%d", conf.GetInt("server.port")))
+	if err != nil {
+		logger.Error("Server starting failed")
+	}
 }
