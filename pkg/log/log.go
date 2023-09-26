@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const LOGGER_KEY = "zapLogger"
+const LoggerKey = "zapLogger"
 
 type Logger struct {
 	*zap.Logger
@@ -96,7 +96,7 @@ func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 
 // NewContext Adds a field to the specified context
 func (l *Logger) NewContext(ctx *gin.Context, fields ...zapcore.Field) {
-	ctx.Set(LOGGER_KEY, l.WithContext(ctx).With(fields...))
+	ctx.Set(LoggerKey, l.WithContext(ctx).With(fields...))
 }
 
 // WithContext Returns a zap instance from the specified context
@@ -104,7 +104,7 @@ func (l *Logger) WithContext(ctx *gin.Context) *Logger {
 	if ctx == nil {
 		return l
 	}
-	zl, _ := ctx.Get(LOGGER_KEY)
+	zl, _ := ctx.Get(LoggerKey)
 	ctxLogger, ok := zl.(*zap.Logger)
 	if ok {
 		return &Logger{ctxLogger}

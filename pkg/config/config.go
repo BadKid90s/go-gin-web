@@ -3,12 +3,10 @@ package config
 import (
 	"fmt"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
 func NewConfig() *viper.Viper {
-	log.Println("loading conf file")
 	appEnv := os.Getenv("APP_ENV")
 	configFile := "application-prod.yml"
 	if appEnv == "" || appEnv == "dev" {
