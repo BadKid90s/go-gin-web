@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-gin-demo/internal/common/constant"
+	"go-gin-demo/internal/common/errors"
 	"go-gin-demo/internal/common/resp"
 	"go-gin-demo/internal/system/request"
 	"go-gin-demo/internal/system/service"
@@ -53,8 +53,10 @@ func (h *userHandler) UserInfo(ctx *gin.Context) {
 
 func (h *userHandler) Login(ctx *gin.Context) {
 	loginReq := new(request.LoginRequest)
-	if err := ctx.ShouldBind(&loginReq); err == nil {
-		fmt.Printf("login info:%#v", loginReq)
+	err := ctx.ShouldBind(&loginReq)
+	if err != nil {
+		resp.HandleError(ctx, errors.NewBarRequestError(err.Error()), nil)
+		return
 	}
 	user, err := h.userService.Login(ctx, loginReq)
 	if err != nil {
