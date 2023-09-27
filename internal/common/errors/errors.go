@@ -1,12 +1,15 @@
-package common
+package errors
+
+import erros "github.com/pkg/errors"
 
 var (
-	successCode           = 2000
+	SuccessCode      = 2000
+	UnknownErrorCode = 5003
+
 	badRequestCode        = 4000
 	internalErrorCode     = 5000
 	notFoundDataErrorCode = 5001
 	bizErrorCode          = 5002
-	unknownErrorCode      = 5003
 )
 
 type SystemError struct {
@@ -32,4 +35,8 @@ func NewBizError(msg string) error {
 
 func NewBarRequestError(msg string) error {
 	return &SystemError{Code: badRequestCode, Message: msg}
+}
+
+func Wrap(err error, message string) error {
+	return erros.Wrap(err, message)
 }

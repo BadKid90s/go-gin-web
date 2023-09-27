@@ -5,12 +5,10 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"go-gin-demo/internal/common"
+	"go-gin-demo/internal/common/repository"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
-	"go-gin-demo/internal/system/handler"
-	"go-gin-demo/internal/system/repository"
-	"go-gin-demo/internal/system/service"
+	"go-gin-demo/internal/system"
 	"go-gin-demo/pkg/jwt"
 	"go-gin-demo/pkg/log"
 	"net/http"
@@ -24,20 +22,19 @@ var JwtSet = wire.NewSet(
 )
 
 var CommSet = wire.NewSet(
-	common.NewHandler,
-	common.NewDB,
-	common.NewRepository,
-)
-
-var SystemSet = wire.NewSet(
-	repository.NewUserRepository,
-	service.NewUserService,
-	handler.NewUserHandler,
-	handler.NewSystemHandler,
+	repository.NewDB,
+	repository.NewRepository,
 )
 
 var RouterSet = wire.NewSet(
 	routers.NewRouter,
+)
+
+var SystemSet = wire.NewSet(
+	system.NewUserHandler,
+	system.NewUserService,
+	system.NewUserRepository,
+	system.NewSystem,
 )
 
 func NewServer(viperViper *viper.Viper, _ *log.Logger) http.Handler {

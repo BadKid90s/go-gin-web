@@ -2,8 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"go-gin-demo/internal/common"
+	"go-gin-demo/internal/common/errors"
 	"go-gin-demo/internal/system/model"
 	"go-gin-demo/internal/system/pkg"
 	"go-gin-demo/internal/system/repository"
@@ -30,7 +29,7 @@ type userService struct {
 func (s *userService) UserInfo(ctx context.Context, userId uint) (*response.UserInfoResponse, error) {
 	user, err := s.userRepo.GetById(ctx, userId)
 	if err != nil {
-		return nil, common.NewInternalError(err.Error())
+		return nil, errors.NewInternalError(err.Error())
 	}
 	return &response.UserInfoResponse{
 		UserName:  user.UserName,
@@ -43,7 +42,7 @@ func (s *userService) UserInfo(ctx context.Context, userId uint) (*response.User
 func (s *userService) Register(ctx context.Context, req *request.RegisterRequest) error {
 	// check username
 	if user, err := s.userRepo.GetByLoginName(ctx, *req.LoginName); err == nil && user != nil {
-		return common.NewBizError("LoginName already exists")
+		return errors.NewBizError("LoginName already exists")
 	}
 
 	password, err := pkg.HashPassword(*req.Password)
@@ -67,10 +66,10 @@ func (s *userService) Register(ctx context.Context, req *request.RegisterRequest
 func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*model.User, error) {
 	user, err := s.userRepo.GetByLoginName(ctx, req.LoginName)
 	if err != nil || user == nil {
-		return nil, common.NewBizError("failed to get user by loginName")
+		return nil, errors.NewBizError("failed to get user by loginName")
 	}
 	if !pkg.CheckPassword(req.Password, *user.Password) {
-		return nil, common.NewBizError("password verify failed")
+		return nil, errors.NewBizError("password verify failed")
 	}
 	return user, nil
 }

@@ -9,11 +9,12 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"go-gin-demo/internal/common"
+	"go-gin-demo/internal/common/repository"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
+	"go-gin-demo/internal/system"
 	"go-gin-demo/internal/system/handler"
-	"go-gin-demo/internal/system/repository"
+	repository2 "go-gin-demo/internal/system/repository"
 	"go-gin-demo/internal/system/service"
 	"go-gin-demo/pkg/jwt"
 	"go-gin-demo/pkg/log"
@@ -25,14 +26,13 @@ import (
 func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	jwtJWT := jwt.NewJwt(viperViper)
 	engine := server.NewServer()
-	commonHandler := common.NewHandler(logger)
-	db := common.NewDB(viperViper)
-	commonRepository := common.NewRepository(db, logger)
-	userRepository := repository.NewUserRepository(commonRepository)
+	db := repository.NewDB(viperViper)
+	repositoryRepository := repository.NewRepository(db, logger)
+	userRepository := repository2.NewUserRepository(repositoryRepository)
 	userService := service.NewUserService(userRepository)
-	userHandler := handler.NewUserHandler(jwtJWT, commonHandler, userService)
-	systemHandler := handler.NewSystemHandler(userHandler)
-	httpHandler := routers.NewRouter(jwtJWT, engine, systemHandler)
+	userHandler := handler.NewUserHandler(jwtJWT, userService)
+	systemSystem := system.NewSystem(userHandler)
+	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem)
 	return httpHandler
 }
 
@@ -42,8 +42,8 @@ var ServerSet = wire.NewSet(server.NewServer)
 
 var JwtSet = wire.NewSet(jwt.NewJwt)
 
-var CommSet = wire.NewSet(common.NewHandler, common.NewDB, common.NewRepository)
-
-var SystemSet = wire.NewSet(repository.NewUserRepository, service.NewUserService, handler.NewUserHandler, handler.NewSystemHandler)
+var CommSet = wire.NewSet(repository.NewDB, repository.NewRepository)
 
 var RouterSet = wire.NewSet(routers.NewRouter)
+
+var SystemSet = wire.NewSet(system.NewUserHandler, system.NewUserService, system.NewUserRepository, system.NewSystem)

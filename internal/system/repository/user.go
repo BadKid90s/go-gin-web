@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"github.com/pkg/errors"
-	"go-gin-demo/internal/common"
+	"go-gin-demo/internal/common/repository"
 	"go-gin-demo/internal/system/model"
 	"gorm.io/gorm"
 )
@@ -15,14 +15,14 @@ type UserRepository interface {
 	GetById(ctx context.Context, id uint) (*model.User, error)
 }
 
-func NewUserRepository(r *common.Repository) UserRepository {
+func NewUserRepository(r *repository.Repository) UserRepository {
 	return &userRepository{
 		Repository: r,
 	}
 }
 
 type userRepository struct {
-	*common.Repository
+	*repository.Repository
 }
 
 func (r *userRepository) GetById(ctx context.Context, id uint) (*model.User, error) {

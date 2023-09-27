@@ -1,4 +1,4 @@
-package common
+package req
 
 type PageReq struct {
 	PageSize int `json:"pageSize"`

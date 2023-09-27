@@ -1,3 +1,3 @@
-package common
+package constant
 
 var UserId = "userId"

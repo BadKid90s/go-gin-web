@@ -1,8 +1,9 @@
-package common
+package resp
 
 import (
-	"errors"
+	sysErrors "errors"
 	"github.com/gin-gonic/gin"
+	"go-gin-demo/internal/common/errors"
 	"net/http"
 )
 
@@ -16,7 +17,7 @@ func HandleSuccess(ctx *gin.Context, data interface{}) {
 	if data == nil {
 		data = map[string]string{}
 	}
-	resp := Response{Code: successCode, Message: "", Data: data}
+	resp := Response{Code: errors.SuccessCode, Message: "", Data: data}
 	ctx.JSON(http.StatusOK, resp)
 }
 
@@ -25,12 +26,12 @@ func HandleError(ctx *gin.Context, err error, data interface{}) {
 		data = map[string]string{}
 	}
 	var code int
-	var sysErr *SystemError
+	var sysErr *errors.SystemError
 	switch {
-	case errors.As(err, &sysErr):
+	case sysErrors.As(err, &sysErr):
 		code = sysErr.Code
 	default:
-		code = unknownErrorCode
+		code = errors.UnknownErrorCode
 	}
 	resp := Response{Code: code, Message: err.Error(), Data: data}
 	ctx.JSON(http.StatusOK, resp)
