@@ -8,24 +8,36 @@ import (
 	"go-gin-demo/internal/system/pkg"
 	"go-gin-demo/internal/system/repository"
 	"go-gin-demo/internal/system/request"
-	"go-gin-demo/pkg/jwt"
+	"go-gin-demo/internal/system/response"
 )
 
 type UserService interface {
 	Register(ctx context.Context, req *request.RegisterRequest) error
-	Login(ctx context.Context, req *request.LoginRequest) (string, error)
+	Login(ctx context.Context, req *request.LoginRequest) (*model.User, error)
+	UserInfo(ctx context.Context, userId uint) (*response.UserInfoResponse, error)
 }
 
-func NewUserService(jwt *jwt.JWT, userRepo repository.UserRepository) UserService {
+func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{
-		jwt:      jwt,
 		userRepo: userRepo,
 	}
 }
 
 type userService struct {
-	jwt      *jwt.JWT
 	userRepo repository.UserRepository
+}
+
+func (s *userService) UserInfo(ctx context.Context, userId uint) (*response.UserInfoResponse, error) {
+	user, err := s.userRepo.GetById(ctx, userId)
+	if err != nil {
+		return nil, common.NewInternalError(err.Error())
+	}
+	return &response.UserInfoResponse{
+		UserName:  user.UserName,
+		LoginName: user.LoginName,
+		Email:     user.Email,
+		Mobile:    user.Mobile,
+	}, nil
 }
 
 func (s *userService) Register(ctx context.Context, req *request.RegisterRequest) error {
@@ -52,19 +64,13 @@ func (s *userService) Register(ctx context.Context, req *request.RegisterRequest
 	return nil
 }
 
-func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (string, error) {
+func (s *userService) Login(ctx context.Context, req *request.LoginRequest) (*model.User, error) {
 	user, err := s.userRepo.GetByLoginName(ctx, req.LoginName)
 	if err != nil || user == nil {
-		return "", common.NewBizError("failed to get user by loginName")
+		return nil, common.NewBizError("failed to get user by loginName")
 	}
-
 	if !pkg.CheckPassword(req.Password, *user.Password) {
-		return "", common.NewBizError("password verify failed")
+		return nil, common.NewBizError("password verify failed")
 	}
-
-	token, err := s.jwt.GenToken(user.Id)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to generate JWT token")
-	}
-	return token, nil
+	return user, nil
 }

@@ -6,7 +6,7 @@ import (
 	"go-gin-demo/internal/common"
 	"go-gin-demo/internal/system/request"
 	"go-gin-demo/internal/system/service"
-	"net/http"
+	"go-gin-demo/pkg/jwt"
 )
 
 type UserHandler interface {
@@ -15,8 +15,9 @@ type UserHandler interface {
 	UserInfo(ctx *gin.Context)
 }
 
-func NewUserHandler(handler *common.Handler, userService service.UserService) UserHandler {
+func NewUserHandler(jwt *jwt.JWT, handler *common.Handler, userService service.UserService) UserHandler {
 	return &userHandler{
+		jwt:         jwt,
 		Handler:     handler,
 		userService: userService,
 	}
@@ -24,6 +25,7 @@ func NewUserHandler(handler *common.Handler, userService service.UserService) Us
 
 type userHandler struct {
 	*common.Handler
+	jwt         *jwt.JWT
 	userService service.UserService
 }
 
@@ -41,10 +43,13 @@ func (h *userHandler) Register(ctx *gin.Context) {
 }
 
 func (h *userHandler) UserInfo(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{
-		"user": "golang body",
-		"age":  18,
-	})
+	userId := ctx.GetUint(common.UserId)
+	userInfo, err := h.userService.UserInfo(ctx, userId)
+	if err != nil {
+		common.HandleError(ctx, err, nil)
+		return
+	}
+	common.HandleSuccess(ctx, userInfo)
 }
 
 func (h *userHandler) Login(ctx *gin.Context) {
@@ -52,10 +57,17 @@ func (h *userHandler) Login(ctx *gin.Context) {
 	if err := ctx.ShouldBind(&loginReq); err == nil {
 		fmt.Printf("login info:%#v", loginReq)
 	}
-	jwt, err := h.userService.Login(ctx, loginReq)
+	user, err := h.userService.Login(ctx, loginReq)
 	if err != nil {
 		common.HandleError(ctx, err, nil)
 		return
 	}
-	common.HandleSuccess(ctx, jwt)
+
+	token, err := h.jwt.GenToken(user.Id)
+	if err != nil {
+		common.HandleError(ctx, err, nil)
+		return
+	}
+	common.HandleSuccess(ctx, token)
+
 }

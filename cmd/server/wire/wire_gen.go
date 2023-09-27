@@ -29,8 +29,8 @@ func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	db := common.NewDB(viperViper)
 	commonRepository := common.NewRepository(db, logger)
 	userRepository := repository.NewUserRepository(commonRepository)
-	userService := service.NewUserService(jwtJWT, userRepository)
-	userHandler := handler.NewUserHandler(commonHandler, userService)
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(jwtJWT, commonHandler, userService)
 	systemHandler := handler.NewSystemHandler(userHandler)
 	httpHandler := routers.NewRouter(jwtJWT, engine, systemHandler)
 	return httpHandler

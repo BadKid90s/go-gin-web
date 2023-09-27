@@ -25,7 +25,7 @@ func HandleError(ctx *gin.Context, err error, data interface{}) {
 		data = map[string]string{}
 	}
 	var code int
-	var sysErr SystemError
+	var sysErr *SystemError
 	switch {
 	case errors.As(err, &sysErr):
 		code = sysErr.Code
