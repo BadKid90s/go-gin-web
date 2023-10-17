@@ -13,17 +13,19 @@ func NewRouter(
 	r *gin.Engine,
 	system *system.System,
 ) http.Handler {
+	//中间件
+	corsMiddleware := middleware.Cors()
+	jwtMiddleware := middleware.Jwt(jwt)
+	authMiddleware := middleware.Authentication()
 
 	api := r.RouterGroup
-	api.Use(middleware.Cors())
+	api.Use(corsMiddleware)
 
 	noAuthRouter := api.Group("/")
 	noAuthRouter.POST("/register", system.User.Register)
 	noAuthRouter.POST("/login", system.User.Login)
 
-	jwtMiddleware := middleware.Jwt(jwt)
-
-	systemApi := api.Group("/system").Use(jwtMiddleware)
+	systemApi := api.Group("/system").Use(jwtMiddleware, authMiddleware)
 	systemApi.GET("/user", system.User.UserInfo)
 
 	return r
