@@ -5,6 +5,7 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"go-gin-demo/internal/ai"
 	"go-gin-demo/internal/common/repository"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
@@ -37,12 +38,23 @@ var SystemSet = wire.NewSet(
 	system.NewSystem,
 )
 
+var AiSet = wire.NewSet(
+	ai.NewQdrant,
+	ai.NewQdrantClient,
+	ai.NewCollectionsClient,
+	ai.NewPointsClient,
+	ai.NewSnapshotsClient,
+	ai.NewCollectionHandler,
+	ai.NewAi,
+)
+
 func NewServer(viperViper *viper.Viper, _ *log.Logger) http.Handler {
 	wire.Build(
 		ServerSet,
 		JwtSet,
 		CommSet,
 		SystemSet,
+		AiSet,
 		RouterSet,
 	)
 	return nil

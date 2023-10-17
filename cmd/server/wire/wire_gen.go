@@ -9,6 +9,8 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
+	"go-gin-demo/internal/ai"
+	handler2 "go-gin-demo/internal/ai/handler"
 	"go-gin-demo/internal/common/repository"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
@@ -32,7 +34,11 @@ func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(jwtJWT, userService)
 	systemSystem := system.NewSystem(userHandler)
-	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem)
+	clientConn := ai.NewQdrant(viperViper, logger)
+	collectionsClient := ai.NewCollectionsClient(clientConn)
+	collectionHandler := handler2.NewCollectionHandler(collectionsClient)
+	aiAi := ai.NewAi(collectionHandler)
+	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem, aiAi)
 	return httpHandler
 }
 
@@ -47,3 +53,5 @@ var CommSet = wire.NewSet(repository.NewDB, repository.NewRepository)
 var RouterSet = wire.NewSet(routers.NewRouter)
 
 var SystemSet = wire.NewSet(system.NewUserHandler, system.NewUserService, system.NewUserRepository, system.NewSystem)
+
+var AiSet = wire.NewSet(ai.NewQdrant, ai.NewQdrantClient, ai.NewCollectionsClient, ai.NewPointsClient, ai.NewSnapshotsClient, ai.NewCollectionHandler, ai.NewAi)
