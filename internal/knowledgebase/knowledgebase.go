@@ -4,6 +4,7 @@ import (
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"github.com/spf13/viper"
 	hd "go-gin-demo/internal/knowledgebase/handler"
+	"go-gin-demo/internal/knowledgebase/pkg/xfyun"
 	"go-gin-demo/pkg/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -11,6 +12,7 @@ import (
 
 var (
 	NewCollectionHandler = hd.NewCollectionHandler
+	NewEmbedding         = xfyun.NewEmbedding
 )
 
 func NewQdrant(conf *viper.Viper, logger *log.Logger) *grpc.ClientConn {

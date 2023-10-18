@@ -45,6 +45,7 @@ var KnowledgebaseSet = wire.NewSet(
 	knowledgebase.NewPointsClient,
 	knowledgebase.NewSnapshotsClient,
 	knowledgebase.NewCollectionHandler,
+	knowledgebase.NewEmbedding,
 	knowledgebase.NewKnowledgebase,
 )
 

@@ -21,3 +21,7 @@ security:
   jwt:
     key: wry
     expires: 3600
+
+embedding:
+  apiKey: c95ef5a388b0a3809b0e6b94767d6336.cMqckHSbhYHCkyUF
+  url: https://open.bigmodel.cn/api/paas/v3/model-api/text_embedding/invoke

@@ -12,6 +12,7 @@ import (
 	"go-gin-demo/internal/common/repository"
 	"go-gin-demo/internal/knowledgebase"
 	handler2 "go-gin-demo/internal/knowledgebase/handler"
+	"go-gin-demo/internal/knowledgebase/pkg/xfyun"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
 	"go-gin-demo/internal/system"
@@ -36,7 +37,8 @@ func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	systemSystem := system.NewSystem(userHandler)
 	clientConn := knowledgebase.NewQdrant(viperViper, logger)
 	collectionsClient := knowledgebase.NewCollectionsClient(clientConn)
-	collectionHandler := handler2.NewCollectionHandler(collectionsClient)
+	embedding := xfyun.NewEmbedding(viperViper)
+	collectionHandler := handler2.NewCollectionHandler(collectionsClient, embedding)
 	knowledgebaseKnowledgebase := knowledgebase.NewKnowledgebase(collectionHandler)
 	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem, knowledgebaseKnowledgebase)
 	return httpHandler
@@ -54,4 +56,4 @@ var RouterSet = wire.NewSet(routers.NewRouter)
 
 var SystemSet = wire.NewSet(system.NewUserHandler, system.NewUserService, system.NewUserRepository, system.NewSystem)
 
-var KnowledgebaseSet = wire.NewSet(knowledgebase.NewQdrant, knowledgebase.NewQdrantClient, knowledgebase.NewCollectionsClient, knowledgebase.NewPointsClient, knowledgebase.NewSnapshotsClient, knowledgebase.NewCollectionHandler, knowledgebase.NewKnowledgebase)
+var KnowledgebaseSet = wire.NewSet(knowledgebase.NewQdrant, knowledgebase.NewQdrantClient, knowledgebase.NewCollectionsClient, knowledgebase.NewPointsClient, knowledgebase.NewSnapshotsClient, knowledgebase.NewCollectionHandler, knowledgebase.NewEmbedding, knowledgebase.NewKnowledgebase)
