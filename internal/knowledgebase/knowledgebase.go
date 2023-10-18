@@ -1,9 +1,9 @@
-package ai
+package knowledgebase
 
 import (
 	qdrant "github.com/qdrant/go-client/qdrant"
 	"github.com/spf13/viper"
-	hd "go-gin-demo/internal/ai/handler"
+	hd "go-gin-demo/internal/knowledgebase/handler"
 	"go-gin-demo/pkg/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -39,12 +39,12 @@ func NewSnapshotsClient(conn *grpc.ClientConn) qdrant.SnapshotsClient {
 	return qdrant.NewSnapshotsClient(conn)
 }
 
-type Ai struct {
+type Knowledgebase struct {
 	Collection hd.CollectionHandler
 }
 
-func NewAi(collection hd.CollectionHandler) *Ai {
-	return &Ai{
+func NewKnowledgebase(collection hd.CollectionHandler) *Knowledgebase {
+	return &Knowledgebase{
 		Collection: collection,
 	}
 }

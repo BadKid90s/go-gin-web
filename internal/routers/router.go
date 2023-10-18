@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-gin-demo/internal/ai"
+	"go-gin-demo/internal/knowledgebase"
 	"go-gin-demo/internal/middleware"
 	"go-gin-demo/internal/system"
 	"go-gin-demo/pkg/jwt"
@@ -13,7 +13,7 @@ func NewRouter(
 	jwt *jwt.JWT,
 	r *gin.Engine,
 	system *system.System,
-	ai *ai.Ai,
+	knowledgebase *knowledgebase.Knowledgebase,
 ) http.Handler {
 	//中间件
 	corsMiddleware := middleware.Cors()
@@ -30,8 +30,8 @@ func NewRouter(
 	systemApi := api.Group("/system").Use(jwtMiddleware, authMiddleware)
 	systemApi.GET("/user", system.User.UserInfo)
 
-	aiApi := api.Group("/ai")
-	aiApi.POST("/collection", ai.Collection.Create)
+	knowledgebaseApi := api.Group("/knowledgebase")
+	knowledgebaseApi.POST("/collection", knowledgebase.Collection.Create)
 
 	return r
 }

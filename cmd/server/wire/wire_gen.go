@@ -9,9 +9,9 @@ package wire
 import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
-	"go-gin-demo/internal/ai"
-	handler2 "go-gin-demo/internal/ai/handler"
 	"go-gin-demo/internal/common/repository"
+	"go-gin-demo/internal/knowledgebase"
+	handler2 "go-gin-demo/internal/knowledgebase/handler"
 	"go-gin-demo/internal/routers"
 	"go-gin-demo/internal/server"
 	"go-gin-demo/internal/system"
@@ -34,11 +34,11 @@ func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(jwtJWT, userService)
 	systemSystem := system.NewSystem(userHandler)
-	clientConn := ai.NewQdrant(viperViper, logger)
-	collectionsClient := ai.NewCollectionsClient(clientConn)
+	clientConn := knowledgebase.NewQdrant(viperViper, logger)
+	collectionsClient := knowledgebase.NewCollectionsClient(clientConn)
 	collectionHandler := handler2.NewCollectionHandler(collectionsClient)
-	aiAi := ai.NewAi(collectionHandler)
-	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem, aiAi)
+	knowledgebaseKnowledgebase := knowledgebase.NewKnowledgebase(collectionHandler)
+	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem, knowledgebaseKnowledgebase)
 	return httpHandler
 }
 
@@ -54,4 +54,4 @@ var RouterSet = wire.NewSet(routers.NewRouter)
 
 var SystemSet = wire.NewSet(system.NewUserHandler, system.NewUserService, system.NewUserRepository, system.NewSystem)
 
-var AiSet = wire.NewSet(ai.NewQdrant, ai.NewQdrantClient, ai.NewCollectionsClient, ai.NewPointsClient, ai.NewSnapshotsClient, ai.NewCollectionHandler, ai.NewAi)
+var KnowledgebaseSet = wire.NewSet(knowledgebase.NewQdrant, knowledgebase.NewQdrantClient, knowledgebase.NewCollectionsClient, knowledgebase.NewPointsClient, knowledgebase.NewSnapshotsClient, knowledgebase.NewCollectionHandler, knowledgebase.NewKnowledgebase)
