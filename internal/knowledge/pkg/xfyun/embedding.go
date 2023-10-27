@@ -24,7 +24,7 @@ func NewEmbedding(conf *viper.Viper) *Embedding {
 	}
 }
 
-func (e *Embedding) GetEmbedding(text string) ([]float64, error) {
+func (e *Embedding) GetEmbedding(text string) ([]float32, error) {
 	authorization, err := getAuthorization(e.apiKey)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (e *Embedding) GetEmbedding(text string) ([]float64, error) {
 		Success bool
 		Msg     string
 		Data    struct {
-			Embedding []float64
+			Embedding []float32
 		}
 	}
 	var result JsonResult

@@ -2,8 +2,8 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-gin-demo/internal/knowledgebase"
-	"go-gin-demo/internal/middleware"
+	middleware2 "go-gin-demo/internal/common/middleware"
+	"go-gin-demo/internal/knowledge"
 	"go-gin-demo/internal/system"
 	"go-gin-demo/pkg/jwt"
 	"net/http"
@@ -13,12 +13,12 @@ func NewRouter(
 	jwt *jwt.JWT,
 	r *gin.Engine,
 	system *system.System,
-	knowledgebase *knowledgebase.Knowledgebase,
+	kd *knowledge.Knowledge,
 ) http.Handler {
 	//中间件
-	corsMiddleware := middleware.Cors()
-	jwtMiddleware := middleware.Jwt(jwt)
-	authMiddleware := middleware.Authentication()
+	corsMiddleware := middleware2.Cors()
+	jwtMiddleware := middleware2.Jwt(jwt)
+	authMiddleware := middleware2.Authentication()
 
 	api := r.RouterGroup
 	api.Use(corsMiddleware)
@@ -31,7 +31,7 @@ func NewRouter(
 	systemApi.GET("/user", system.User.UserInfo)
 
 	knowledgebaseApi := api.Group("/knowledgebase")
-	knowledgebaseApi.POST("/collection", knowledgebase.Collection.Create)
+	knowledgebaseApi.POST("/collection", kd.CollectionHandler.Create)
 
 	return r
 }

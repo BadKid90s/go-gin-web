@@ -6,9 +6,9 @@ import (
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 	"go-gin-demo/internal/common/repository"
-	"go-gin-demo/internal/knowledgebase"
-	"go-gin-demo/internal/routers"
-	"go-gin-demo/internal/server"
+	"go-gin-demo/internal/common/routers"
+	"go-gin-demo/internal/common/server"
+	"go-gin-demo/internal/knowledge"
 	"go-gin-demo/internal/system"
 	"go-gin-demo/pkg/jwt"
 	"go-gin-demo/pkg/log"
@@ -38,15 +38,9 @@ var SystemSet = wire.NewSet(
 	system.NewSystem,
 )
 
-var KnowledgebaseSet = wire.NewSet(
-	knowledgebase.NewQdrant,
-	knowledgebase.NewQdrantClient,
-	knowledgebase.NewCollectionsClient,
-	knowledgebase.NewPointsClient,
-	knowledgebase.NewSnapshotsClient,
-	knowledgebase.NewCollectionHandler,
-	knowledgebase.NewEmbedding,
-	knowledgebase.NewKnowledgebase,
+var KnowledgeSet = wire.NewSet(
+	knowledge.NewCollectionHandler,
+	knowledge.NewKnowledge,
 )
 
 func NewServer(viperViper *viper.Viper, _ *log.Logger) http.Handler {
@@ -55,7 +49,7 @@ func NewServer(viperViper *viper.Viper, _ *log.Logger) http.Handler {
 		JwtSet,
 		CommSet,
 		SystemSet,
-		KnowledgebaseSet,
+		KnowledgeSet,
 		RouterSet,
 	)
 	return nil
