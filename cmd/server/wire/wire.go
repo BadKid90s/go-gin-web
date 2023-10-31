@@ -39,6 +39,7 @@ var SystemSet = wire.NewSet(
 )
 
 var KnowledgeSet = wire.NewSet(
+	knowledge.NewKnowledgeClient,
 	knowledge.NewCollectionHandler,
 	knowledge.NewKnowledge,
 )
