@@ -1,4 +1,4 @@
-package xfyun
+package client
 
 import (
 	"bytes"
@@ -9,23 +9,29 @@ import (
 	"net/http"
 )
 
-type Embedding struct {
-	apiKey string
-	url    string
+type KnowledgeClientXunfei struct {
+	appid     string
+	apiKey    string
+	apiSecret string
+	url       string
 }
 
-func NewEmbedding(conf *viper.Viper) *Embedding {
-	apiKey := conf.GetString("embedding.apiKey")
-	url := conf.GetString("embedding.url")
+func newKnowledgeClientXunfei(conf *viper.Viper) KnowledgeClient {
+	appid := conf.GetString("embedding.xunfei.appid")
+	apiKey := conf.GetString("embedding.xunfei.apiKey")
+	apiSecret := conf.GetString("embedding.xunfei.apiSecret")
+	url := conf.GetString("embedding.xunfei.url")
 
-	return &Embedding{
-		apiKey: apiKey,
-		url:    url,
+	return &KnowledgeClientXunfei{
+		appid:     appid,
+		apiKey:    apiKey,
+		apiSecret: apiSecret,
+		url:       url,
 	}
 }
 
-func (e *Embedding) GetEmbedding(text string) ([]float32, error) {
-	authorization, err := getAuthorization(e.apiKey)
+func (c *KnowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
+	authorization, err := c.getAuthorization()
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +44,7 @@ func (e *Embedding) GetEmbedding(text string) ([]float32, error) {
 
 	jsonData, _ := json.Marshal(param)
 
-	request, err := http.NewRequest("POST", e.url, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", c.url, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", authorization)
 	if err != nil {
@@ -75,4 +81,11 @@ func (e *Embedding) GetEmbedding(text string) ([]float32, error) {
 		return result.Data.Embedding, nil
 	}
 	return nil, errors.New(result.Msg)
+
+}
+
+// getAuthorization 获取用户鉴权
+func (c *KnowledgeClientXunfei) getAuthorization() (string, error) {
+
+	return "", nil
 }

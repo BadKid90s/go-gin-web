@@ -1,9 +1,13 @@
 package knowledge
 
-import "go-gin-demo/internal/knowledge/handler"
+import (
+	"go-gin-demo/internal/knowledge/client"
+	"go-gin-demo/internal/knowledge/handler"
+)
 
 var (
 	NewCollectionHandler = handler.NewCollectionHandler
+	NewKnowledgeClient   = client.NewKnowledgeClient
 )
 
 type Knowledge struct {
