@@ -3,20 +3,31 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"go-gin-demo/internal/common/resp"
+	"go-gin-demo/internal/knowledge/client"
 )
 
 type CollectionHandler interface {
 	Create(ctx *gin.Context)
 }
 
-func NewCollectionHandler() CollectionHandler {
-	return &collectionHandler{}
+func NewCollectionHandler(client client.KnowledgeClient) CollectionHandler {
+	return &collectionHandler{
+		client,
+	}
 }
 
 type collectionHandler struct {
+	knowledgeClient client.KnowledgeClient
 }
 
 func (c *collectionHandler) Create(ctx *gin.Context) {
+	embedding, err := c.knowledgeClient.GetEmbedding("什么是向量？")
+	if err != nil {
+		resp.HandleError(ctx, err, nil)
+		return
+	}
+	resp.HandleSuccess(ctx, embedding)
+	return
 	//
 	//collectionName := "collectionName"
 	//
@@ -68,5 +79,5 @@ func (c *collectionHandler) Create(ctx *gin.Context) {
 	//	Wait:           &waitUpsert,
 	//	Points:         upsertPoints,
 	//})
-	resp.HandleSuccess(ctx, "embedding")
+	//resp.HandleSuccess(ctx, "embedding")
 }

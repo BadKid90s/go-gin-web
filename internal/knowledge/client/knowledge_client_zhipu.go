@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type KnowledgeClientZhipu struct {
+type knowledgeClientZhipu struct {
 	apiKey string
 	url    string
 }
@@ -21,13 +21,13 @@ func newKnowledgeClientZhipu(conf *viper.Viper) KnowledgeClient {
 	apiKey := conf.GetString("embedding.zhipu.apiKey")
 	url := conf.GetString("embedding.zhipu.url")
 
-	return &KnowledgeClientZhipu{
+	return &knowledgeClientZhipu{
 		apiKey: apiKey,
 		url:    url,
 	}
 }
 
-func (c *KnowledgeClientZhipu) GetEmbedding(text string) ([]float32, error) {
+func (c *knowledgeClientZhipu) GetEmbedding(text string) ([]float32, error) {
 	authorization, err := c.getAuthorization()
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (c *KnowledgeClientZhipu) GetEmbedding(text string) ([]float32, error) {
 }
 
 // getAuthorization 获取用户鉴权
-func (c *KnowledgeClientZhipu) getAuthorization() (string, error) {
+func (c *knowledgeClientZhipu) getAuthorization() (string, error) {
 	keys := strings.Split(c.apiKey, ".")
 
 	expirationTime := time.Now().Add(24 * time.Hour).Unix()

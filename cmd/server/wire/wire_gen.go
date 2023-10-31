@@ -13,6 +13,7 @@ import (
 	"go-gin-demo/internal/common/routers"
 	"go-gin-demo/internal/common/server"
 	"go-gin-demo/internal/knowledge"
+	"go-gin-demo/internal/knowledge/client"
 	handler2 "go-gin-demo/internal/knowledge/handler"
 	"go-gin-demo/internal/system"
 	"go-gin-demo/internal/system/handler"
@@ -34,7 +35,8 @@ func NewServer(viperViper *viper.Viper, logger *log.Logger) http.Handler {
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(jwtJWT, userService)
 	systemSystem := system.NewSystem(userHandler)
-	collectionHandler := handler2.NewCollectionHandler()
+	knowledgeClient := client.NewKnowledgeClient(viperViper)
+	collectionHandler := handler2.NewCollectionHandler(knowledgeClient)
 	knowledgeKnowledge := knowledge.NewKnowledge(collectionHandler)
 	httpHandler := routers.NewRouter(jwtJWT, engine, systemSystem, knowledgeKnowledge)
 	return httpHandler

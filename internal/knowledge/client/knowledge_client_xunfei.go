@@ -2,14 +2,19 @@ package client
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"github.com/spf13/viper"
 	"io"
 	"net/http"
+	"net/url"
+	"time"
 )
 
-type KnowledgeClientXunfei struct {
+type knowledgeClientXunfei struct {
 	appid     string
 	apiKey    string
 	apiSecret string
@@ -22,7 +27,7 @@ func newKnowledgeClientXunfei(conf *viper.Viper) KnowledgeClient {
 	apiSecret := conf.GetString("embedding.xunfei.apiSecret")
 	url := conf.GetString("embedding.xunfei.url")
 
-	return &KnowledgeClientXunfei{
+	return &knowledgeClientXunfei{
 		appid:     appid,
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
@@ -30,23 +35,27 @@ func newKnowledgeClientXunfei(conf *viper.Viper) KnowledgeClient {
 	}
 }
 
-func (c *KnowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
-	authorization, err := c.getAuthorization()
+func (c *knowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
+	targetUrl, err := c.getUrl()
 	if err != nil {
 		return nil, err
 	}
 
 	client := http.DefaultClient
 
-	param := map[string]string{
-		"prompt": text,
+	param := map[string]any{
+		"header": map[string]string{
+			"app_id": c.appid,
+		},
+		"payload": map[string]string{
+			"text": text,
+		},
 	}
 
 	jsonData, _ := json.Marshal(param)
 
-	request, err := http.NewRequest("POST", c.url, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", targetUrl, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json")
-	request.Header.Set("Authorization", authorization)
 	if err != nil {
 		return nil, err
 
@@ -66,10 +75,10 @@ func (c *KnowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
 	}
 
 	type JsonResult struct {
-		Success bool
-		Msg     string
-		Data    struct {
-			Embedding []float32
+		Payload struct {
+			Text struct {
+				vector []float32
+			}
 		}
 	}
 	var result JsonResult
@@ -77,15 +86,33 @@ func (c *KnowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
 	if err != nil {
 		return nil, err
 	}
-	if result.Success {
-		return result.Data.Embedding, nil
-	}
-	return nil, errors.New(result.Msg)
-
+	return result.Payload.Text.vector, nil
 }
 
 // getAuthorization 获取用户鉴权
-func (c *KnowledgeClientXunfei) getAuthorization() (string, error) {
+func (c *knowledgeClientXunfei) getUrl() (string, error) {
+	parse, err := url.Parse(c.url)
+	if err != nil {
+		return "", err
+	}
+	host := parse.Host
+	path := parse.Path
 
-	return "", nil
+	now := time.Now().UTC()
+	date := now.Format(time.RFC1123)
+
+	signatureOrigin := fmt.Sprintf("host: %s\ndate: %s\nGET %s HTTP/1.1", host, date, path)
+	h := hmac.New(sha256.New, []byte(c.apiSecret))
+	h.Write([]byte(signatureOrigin))
+	signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
+
+	authorizationOrigin := fmt.Sprintf(`api_key="%s", algorithm="hmac-sha256", headers="host date request-line", signature="%s"`, c.apiKey, signature)
+	authorization := base64.StdEncoding.EncodeToString([]byte(authorizationOrigin))
+
+	v := url.Values{}
+	v.Set("authorization", authorization)
+	v.Set("date", date)
+	v.Set("host", host)
+
+	return fmt.Sprintf("%s?%s", c.url, v.Encode()), nil
 }

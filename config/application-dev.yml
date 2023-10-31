@@ -23,9 +23,9 @@ security:
     expires: 3600
 
 embedding:
-  zhipu:
-    apiKey: c95ef5a388b0a3809b0e6b94767d6336.cMqckHSbhYHCkyUF
-    url: https://open.bigmodel.cn/api/paas/v3/model-api/text_embedding/invoke
+#  zhipu:
+#    apiKey: c95ef5a388b0a3809b0e6b94767d6336.cMqckHSbhYHCkyUF
+#    url: https://open.bigmodel.cn/api/paas/v3/model-api/text_embedding/invoke
   xunfei:
     appid: 8eec9a9a
     apiKey: 63b8322d0f0458e2bc509a0d68b9d85b
