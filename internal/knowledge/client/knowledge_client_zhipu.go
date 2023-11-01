@@ -13,17 +13,17 @@ import (
 )
 
 type knowledgeClientZhipu struct {
-	apiKey string
-	url    string
+	apiKey       string
+	embeddingUrl string
 }
 
 func newKnowledgeClientZhipu(conf *viper.Viper) KnowledgeClient {
 	apiKey := conf.GetString("embedding.zhipu.apiKey")
-	url := conf.GetString("embedding.zhipu.url")
+	embeddingUrl := conf.GetString("embedding.zhipu.embeddingUrl")
 
 	return &knowledgeClientZhipu{
-		apiKey: apiKey,
-		url:    url,
+		apiKey:       apiKey,
+		embeddingUrl: embeddingUrl,
 	}
 }
 
@@ -41,7 +41,7 @@ func (c *knowledgeClientZhipu) GetEmbedding(text string) ([]float32, error) {
 
 	jsonData, _ := json.Marshal(param)
 
-	request, err := http.NewRequest("POST", c.url, bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", c.embeddingUrl, bytes.NewBuffer(jsonData))
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", authorization)
 	if err != nil {
