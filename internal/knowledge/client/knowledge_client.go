@@ -7,6 +7,7 @@ import (
 
 type KnowledgeClient interface {
 	GetEmbedding(text string) ([]float32, error)
+	ChatMessage(text string) (chan string, error)
 }
 
 func NewKnowledgeClient(conf *viper.Viper) KnowledgeClient {

@@ -37,6 +37,11 @@ func newKnowledgeClientXunfei(conf *viper.Viper) KnowledgeClient {
 	}
 }
 
+func (c *knowledgeClientXunfei) ChatMessage(text string) (chan string, error) {
+
+	return nil, nil
+}
+
 func (c *knowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
 	targetUrl, err := c.getUrl()
 	if err != nil {
