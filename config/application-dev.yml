@@ -23,12 +23,14 @@ security:
     expires: 3600
 
 embedding:
-  zhipu:
-    apiKey: c95ef5a388b0a3809b0e6b94767d6336.cMqckHSbhYHCkyUF
-    embeddingUrl: https://open.bigmodel.cn/api/paas/v3/model-api/text_embedding/invoke
-    modelUrl: https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_turbo/sse-invoke
-#  xunfei:
-#    appid: 8eec9a9a
-#    apiKey: 63b8322d0f0458e2bc509a0d68b9d85b
-#    apiSecret: NmFiMThkMWVhM2EwOGI4ZDk2NDkxMTFj
-#    embeddingUrl: https://knowledge-retrieval.cn-huabei-1.xf-yun.com/v1/aiui/embedding/query
+#  zhipu:
+#    apiKey: c95ef5a388b0a3809b0e6b94767d6336.cMqckHSbhYHCkyUF
+#    embeddingUrl: https://open.bigmodel.cn/api/paas/v3/model-api/text_embedding/invoke
+#    modelUrl: https://open.bigmodel.cn/api/paas/v3/model-api/chatglm_turbo/sse-invoke
+  xunfei:
+    appid: 8eec9a9a
+    apiKey: 63b8322d0f0458e2bc509a0d68b9d85b
+    apiSecret: NmFiMThkMWVhM2EwOGI4ZDk2NDkxMTFj
+    embeddingUrl: https://knowledge-retrieval.cn-huabei-1.xf-yun.com/v1/aiui/embedding/query
+    modelUrl: wss://spark-api.xf-yun.com/v2.1/chat
+#    modelUrl: wss://spark-api.xf-yun.com/v1.1/chat

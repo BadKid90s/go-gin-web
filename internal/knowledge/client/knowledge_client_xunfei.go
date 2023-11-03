@@ -6,9 +6,12 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"github.com/spf13/viper"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -21,6 +24,7 @@ type knowledgeClientXunfei struct {
 	apiKey       string
 	apiSecret    string
 	embeddingUrl string
+	modelUrl     string
 }
 
 func newKnowledgeClientXunfei(conf *viper.Viper) KnowledgeClient {
@@ -28,22 +32,82 @@ func newKnowledgeClientXunfei(conf *viper.Viper) KnowledgeClient {
 	apiKey := conf.GetString("embedding.xunfei.apiKey")
 	apiSecret := conf.GetString("embedding.xunfei.apiSecret")
 	embeddingUrl := conf.GetString("embedding.xunfei.embeddingUrl")
+	modelUrl := conf.GetString("embedding.xunfei.modelUrl")
 
 	return &knowledgeClientXunfei{
 		appid:        appid,
 		apiKey:       apiKey,
 		apiSecret:    apiSecret,
 		embeddingUrl: embeddingUrl,
+		modelUrl:     modelUrl,
 	}
 }
 
 func (c *knowledgeClientXunfei) ChatMessage(text string) (chan string, error) {
+	targetUrl, err := c.getUrl(c.modelUrl, "GET")
+	conn, _, err := websocket.DefaultDialer.Dial(targetUrl, nil)
+	if err != nil {
+		log.Println("dial:", err)
+	}
 
-	return nil, nil
+	params := c.genParams(c.appid, text)
+	err = conn.WriteJSON(params)
+	if err != nil {
+		log.Println("WriteMessage:", err)
+	}
+
+	eventChan := make(chan string) // 创建一个用于存储SSE事件的通道
+
+	go func() {
+		for {
+			_, msg, err := conn.ReadMessage()
+			if err != nil {
+				log.Println("read message error:", err)
+				break
+			}
+
+			var data map[string]interface{}
+			err1 := json.Unmarshal(msg, &data)
+			if err1 != nil {
+				log.Println("Error parsing JSON:", err)
+				close(eventChan)
+				return
+			}
+
+			header := data["header"].(map[string]interface{})
+			code := header["code"].(float64)
+			if code != 0 {
+				message := header["message"].(string)
+				log.Println("Xfyun err:", errors.New(fmt.Sprintf("code:%f,message:%s", code, message)))
+				close(eventChan)
+				return
+			}
+			//解析数据
+			payload := data["payload"].(map[string]interface{})
+			choices := payload["choices"].(map[string]interface{})
+			status := choices["status"].(float64)
+			text := choices["text"].([]interface{})
+			content := text[0].(map[string]interface{})["content"].(string)
+			if status != 2 {
+				eventChan <- content
+			} else {
+				log.Println("收到最终结果")
+				eventChan <- content
+				usage := payload["usage"].(map[string]interface{})
+				temp := usage["text"].(map[string]interface{})
+				totalTokens := temp["total_tokens"].(float64)
+				log.Println("total_tokens:", totalTokens)
+				_ = conn.Close()
+				close(eventChan)
+				break
+			}
+		}
+	}()
+	return eventChan, nil
 }
 
 func (c *knowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
-	targetUrl, err := c.getUrl()
+	targetUrl, err := c.getUrl(c.embeddingUrl, "POST")
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +166,8 @@ func (c *knowledgeClientXunfei) GetEmbedding(text string) ([]float32, error) {
 }
 
 // getAuthorization 获取用户鉴权
-func (c *knowledgeClientXunfei) getUrl() (string, error) {
-	parse, err := url.Parse(c.embeddingUrl)
+func (c *knowledgeClientXunfei) getUrl(URL string, method string) (string, error) {
+	parse, err := url.Parse(URL)
 	if err != nil {
 		return "", err
 	}
@@ -113,7 +177,7 @@ func (c *knowledgeClientXunfei) getUrl() (string, error) {
 	now := time.Now().UTC()
 	date := now.Format(time.RFC1123)
 
-	signatureOrigin := fmt.Sprintf("host: %s\ndate: %s\nPOST %s HTTP/1.1", host, date, path)
+	signatureOrigin := fmt.Sprintf("host: %s\ndate: %s\n%s %s HTTP/1.1", host, date, method, path)
 	h := hmac.New(sha256.New, []byte(c.apiSecret))
 	h.Write([]byte(signatureOrigin))
 	signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
@@ -126,7 +190,7 @@ func (c *knowledgeClientXunfei) getUrl() (string, error) {
 	v.Set("date", date)
 	v.Set("host", host)
 
-	return fmt.Sprintf("%s?%s", c.embeddingUrl, v.Encode()), nil
+	return fmt.Sprintf("%s?%s", URL, v.Encode()), nil
 }
 
 func (c *knowledgeClientXunfei) strToFloatArray(str string) ([]float32, error) {
@@ -148,4 +212,38 @@ func (c *knowledgeClientXunfei) strToFloatArray(str string) ([]float32, error) {
 		floatArr[i] = float32(f)
 	}
 	return floatArr, nil
+}
+
+// 生成参数
+func (c *knowledgeClientXunfei) genParams(appid, question string) map[string]interface{} { // 根据实际情况修改返回的数据结构和字段名
+
+	messages := []Message{
+		{Role: "user", Content: question},
+	}
+
+	data := map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+		"header": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+			"app_id": appid, // 根据实际情况修改返回的数据结构和字段名
+		},
+		"parameter": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+			"chat": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+				"domain":      "generalv2",  // 根据实际情况修改返回的数据结构和字段名
+				"temperature": float64(0.8), // 根据实际情况修改返回的数据结构和字段名
+				"top_k":       int64(6),     // 根据实际情况修改返回的数据结构和字段名
+				"max_tokens":  int64(2048),  // 根据实际情况修改返回的数据结构和字段名
+				"auditing":    "default",    // 根据实际情况修改返回的数据结构和字段名
+			},
+		},
+		"payload": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+			"message": map[string]interface{}{ // 根据实际情况修改返回的数据结构和字段名
+				"text": messages, // 根据实际情况修改返回的数据结构和字段名
+			},
+		},
+	}
+	return data // 根据实际情况修改返回的数据结构和字段名
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
